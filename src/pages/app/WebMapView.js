@@ -1,8 +1,10 @@
 import React from 'react';
 import ArcGIS from '../../ArcGIS/ArcGIS';
-import './style.css'
+import './style.css';
+
 
 const arcGIS = new ArcGIS();
+
 
  class WebMapView extends React.Component {
   
@@ -10,7 +12,8 @@ const arcGIS = new ArcGIS();
         super(props);
         this.mapRef = React.createRef();
         this.token = null
-    }    
+        };
+
      componentWillMount() {
         arcGIS.loader();
      
@@ -22,13 +25,12 @@ const arcGIS = new ArcGIS();
         }
     }
 
+
     render() {
         return (
-              
-              <div className="webmap" ref={this.mapRef} id="viewDiv" />
-                
-        )
-            
+          <div className="webmap" ref={this.mapRef} id="viewDiv" />
+           
+        );            
     }
 }
 export default WebMapView;

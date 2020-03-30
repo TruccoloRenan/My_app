@@ -5,6 +5,7 @@ import ensureArray from 'ensure-array';
 import styled from 'styled-components';
 import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '../app/StyledSideNav';
 import { Link, withRouter } from 'react-router-dom';
+import VideoRecorder from 'react-video-recorder';
 
 const navWidthCollapsed = 64;
 const navWidthExpanded = 280;
@@ -174,14 +175,6 @@ class GravarVideo extends React.Component {
                             GRAVAR VIDEO
                         </NavText>
                     </NavItem>
-                    <NavItem eventKey="Mapa">
-                        <NavIcon>
-                            <i className="fa fa-fw fa-list-alt" style={{ fontSize: '1.75em', verticalAlign: 'middle' }}/>
-                        </NavIcon>
-                        <NavText style={{ paddingRight: 32}} title="Mapa">
-                            Mapa
-                        </NavText>
-                    </NavItem>
                     <Separator />
                     <NavItem eventKey="logout">
                         <NavIcon>
@@ -195,7 +188,7 @@ class GravarVideo extends React.Component {
             </SideNav>
             <Main expanded={expanded}>
                 {this.renderBreadcrumbs()}
-                toba
+                <VideoRecorder />          
             </Main>
         </div>
     

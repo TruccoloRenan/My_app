@@ -5,9 +5,13 @@ import ensureArray from 'ensure-array';
 import styled from 'styled-components';
 import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '../app/StyledSideNav';
 import { Link, withRouter } from 'react-router-dom';
+import MicRecorder from 'mic-recorder-to-mp3';
+import './styleAudio.css';
 
 const navWidthCollapsed = 64;
 const navWidthExpanded = 280;
+
+const Mp3Recorder= new MicRecorder({ bitRate: 128 });
 
 const NavHeader = styled.div`
     display: ${props => (props.expanded ? 'block' : 'none')};
@@ -66,8 +70,33 @@ class GravarAudio extends React.Component {
 
     state = {
         selected: 'home',
-        expanded: false
+        expanded: false,
+        isRecording: false,
+        blobURL:'',
+        isBlocked: false,
     }
+
+    start = () => {
+        if(this.state.isBlocked){
+            console.log('Permission Denied');
+        } else {
+            Mp3Recorder
+            .start
+            .then(() => {
+                this.setState({ isRecording: true});
+            }).catch((e) => console.error(e));
+        }
+    };
+
+    stop = () => {
+        Mp3Recorder
+        .stop()
+        .getMp3()
+        .then(([buffer, blob]) => {
+            const blobURL = URL.createObjectURL(blob)
+            this.setState({ blobURL, isRecording: false});
+        }).catch((e) => console.log(e));
+    };
 
     lastUpdateTime = new Date().toISOString();
 
@@ -126,6 +155,19 @@ class GravarAudio extends React.Component {
         );
     }
 
+    componentDidMount() {
+        navigator.getUserMedia({audio: true},
+        () => {
+            console.log('Permission Granted');
+            this.setState({ isBlocked: false});
+        },
+        () => {
+            console.log('Permission Denied');
+            this.setState({ isBlocked: true })
+        },
+      );
+    }
+
     render() {
         const { expanded, selected } = this.state;
 
@@ -174,14 +216,6 @@ class GravarAudio extends React.Component {
                             GRAVAR VIDEO
                         </NavText>
                     </NavItem>
-                    <NavItem eventKey="Mapa">
-                        <NavIcon>
-                            <i className="fa fa-fw fa-list-alt" style={{ fontSize: '1.75em', verticalAlign: 'middle' }}/>
-                        </NavIcon>
-                        <NavText style={{ paddingRight: 32}} title="Mapa">
-                            Mapa
-                        </NavText>
-                    </NavItem>
                     <Separator />
                     <NavItem eventKey="logout">
                         <NavIcon>
@@ -195,7 +229,14 @@ class GravarAudio extends React.Component {
             </SideNav>
             <Main expanded={expanded}>
                 {this.renderBreadcrumbs()}
-                teste
+                <div>
+                    
+                </div>
+                <div className="App">
+                    <button onClick={this.start} disabled={this.state.isRecording}>Gravar Audio</button>
+                    <button onClick={this.stop} disabled={!this.state.isRecording}>Parar</button>
+                    <audio src={this.state.blobURL} controls="controls" />
+                </div>
             </Main>
         </div>
     

@@ -176,14 +176,6 @@ class MainPage extends React.Component {
                             GRAVAR VIDEO
                         </NavText>
                     </NavItem>
-                    <NavItem eventKey="Mapa">
-                        <NavIcon>
-                            <i className="fa fa-fw fa-list-alt" style={{ fontSize: '1.75em', verticalAlign: 'middle' }}/>
-                        </NavIcon>
-                        <NavText style={{ paddingRight: 32}} title="Mapa">
-                            Mapa
-                        </NavText>
-                    </NavItem>
                     <Separator />
                     <NavItem eventKey="logout">
                         <NavIcon>

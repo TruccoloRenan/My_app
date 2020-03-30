@@ -14,11 +14,12 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'npm install'
-                sh 'npm run build'
             }
         }
-
-        
+        stage('teste'){
+            steps {
+                sh 'npm run build'
+            }
         }
     }
 }

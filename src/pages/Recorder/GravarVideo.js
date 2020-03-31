@@ -73,15 +73,15 @@ class GravarVideo extends React.Component {
     lastUpdateTime = new Date().toISOString();
 
     gravarAudio(){
-        this.props.history.push("/gravarAudio");
+        this.props.history.push("/GravarAudio");
     }
 
     gravarVideo(){
-        this.props.history.push("/gravarVideo");
+        this.props.history.push("/GravarVideo");
     }
 
     home(){
-        this.props.history.push("/app");
+        this.props.history.push("/App");
 
     }
 

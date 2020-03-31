@@ -7,11 +7,13 @@ import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '../app/StyledSi
 import { Link, withRouter } from 'react-router-dom';
 import MicRecorder from 'mic-recorder-to-mp3';
 import './styleAudio.css';
-
+import Axios from 'axios';
 const navWidthCollapsed = 64;
 const navWidthExpanded = 280;
 
-const Mp3Recorder= new MicRecorder({ bitRate: 128 });
+const Mp3Recorder = new MicRecorder({ bitRate: 128 });
+
+const blobURL = "";
 
 const NavHeader = styled.div`
     display: ${props => (props.expanded ? 'block' : 'none')};
@@ -93,7 +95,7 @@ class GravarAudio extends React.Component {
         .stop()
         .getMp3()
         .then(([buffer, blob]) => {
-            const blobURL = URL.createObjectURL(blob)
+            blobURL = URL.createObjectURL(blob)
             this.setState({ blobURL, isRecording: false});
         }).catch((e) => console.log(e));
     };
@@ -101,15 +103,15 @@ class GravarAudio extends React.Component {
     lastUpdateTime = new Date().toISOString();
 
     gravarAudio(){
-        this.props.history.push("/gravarAudio");
+        this.props.history.push("/GravarAudio");
     }
 
     gravarVideo(){
-        this.props.history.push("/gravarVideo");
+        this.props.history.push("/GravarVideo");
     }
 
     home(){
-        this.props.history.push("/app");
+        this.props.history.push("/App");
 
     }
 
@@ -155,6 +157,54 @@ class GravarAudio extends React.Component {
         );
     }
 
+    enviar = async e => {
+     var ffmpeg = require('ffmpeg');
+     try{
+
+        var path = require('path');
+        var process = new ffmpeg(blobURL);
+        process.then(function (audio){
+            audio.fnExtractFrameToMP3(path.resolve(".audios/file.mp3"), function (error, file) {
+                if(!error)
+                    console.log("Audio file" + file);
+            });
+        }, function(err) {
+            console.log("Error:" + err);
+        })
+    }catch (e) {
+        console.log(e.code);
+        console.log(e.msg);
+    }
+
+    try{
+        const FormData = require('form-data');
+        const fs = require('fs');
+
+        let form = new FormData();
+
+        form.append('file',fs.createReadStream('./audios' + "/audio.mp4"), {
+            filename:'audio.mp4'
+        });
+
+        Axios.create({
+            headers: form.getHeaders()}).post('http://localhost:4004/', form)
+            .then(response => {
+                console.log(response);
+                console.log("Upload realizado com sucesso!")
+            }).catch(error => {
+                if(error.response){
+                    console.log(error.response);
+                    console.log("Falha no upload, tente novamente!");
+                }
+                console.log(error.message);
+                console.log("Falha no upload, tente novamente!");
+            })
+    }catch (err) {
+       console.log("Falha no upload, tente novamente!");
+    }
+
+  }
+  
     componentDidMount() {
         navigator.getUserMedia({audio: true},
         () => {
@@ -229,14 +279,14 @@ class GravarAudio extends React.Component {
             </SideNav>
             <Main expanded={expanded}>
                 {this.renderBreadcrumbs()}
-                <div>
-                    
-                </div>
+               
                 <div className="App">
                     <button onClick={this.start} disabled={this.state.isRecording}>Gravar Audio</button>
                     <button onClick={this.stop} disabled={!this.state.isRecording}>Parar</button>
                     <audio src={this.state.blobURL} controls="controls" />
+                    <button onClick={this.enviar}>Enviar</button>
                 </div>
+
             </Main>
         </div>
     

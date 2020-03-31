@@ -28,7 +28,7 @@ class SignIn extends Component {
 
                 const response = await api.post("/api/usuarios/login", data);
                 login(response.data.token);
-                this.props.history.push("/app");
+                this.props.history.push("/App");
             }catch (err) {
                 this.setState({
                     error: "Houve um problema com o login, verifique suas credenciais!"
@@ -55,7 +55,7 @@ class SignIn extends Component {
                     />
                     <button type="submit">Entrar</button>
                     <hr />
-                    <Link to="/signup">Criar Conta</Link>
+                    <Link to="/Signup">Criar Conta</Link>
                 </Form>
             </Container>
         );

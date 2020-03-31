@@ -26,10 +26,10 @@ const Routes = () => (
     <BrowserRouter>
         <Switch>
             <Route exact path="/" component={SignIn} />
-            <Route path="/signup" component={SignUp} />
-            <Route path="/gravarAudio" component={GravarAudio} />
-            <Route path="/gravarVideo" component={GravarVideo} />
-            <PrivateRoute path="/app" component={MainPage} />
+            <Route path="/Signup" component={SignUp} />
+            <Route path="/GravarAudio" component={GravarAudio} />
+            <Route path="/GravarVideo" component={GravarVideo} />
+            <PrivateRoute path="/App" component={MainPage} />
             <Route path="*" component={() => <h1>Page not Found</h1>} />
         </Switch>
     </BrowserRouter>

@@ -8,6 +8,7 @@ import { Link, withRouter } from 'react-router-dom';
 import MicRecorder from 'mic-recorder-to-mp3';
 import './styleAudio.css';
 import Axios from 'axios';
+
 const navWidthCollapsed = 64;
 const navWidthExpanded = 280;
 
@@ -158,47 +159,66 @@ class GravarAudio extends React.Component {
     }
 
     enviar = async e => {
+        console.log('entrou - enviar')
+
      var ffmpeg = require('ffmpeg');
      try{
+
+        console.log("entrou - salavar audio blob");
 
         var path = require('path');
         var process = new ffmpeg(blobURL);
         process.then(function (audio){
-            audio.fnExtractFrameToMP3(path.resolve(".audios/file.mp3"), function (error, file) {
+            audio.fnExtractFrameToMP3(path.resolve(".audios/file-" + Date.now() +".mp3"), function (error, file) {
                 if(!error)
+                    console.log(" ----------------");
                     console.log("Audio file" + file);
+                    console.log("-----------------");
             });
         }, function(err) {
+            console.log("------------");
             console.log("Error:" + err);
+            console.log("------------");
         })
     }catch (e) {
-        console.log(e.code);
-        console.log(e.msg);
+        console.log(e.code + " erro 1 code");
+        console.log(e.msg + " erro 2 msg");
     }
 
     try{
         const FormData = require('form-data');
         const fs = require('fs');
 
+        console.log('entrou - iniciar envio');
+
         let form = new FormData();
 
-        form.append('file',fs.createReadStream('./audios' + "/audio.mp4"), {
-            filename:'audio.mp4'
-        });
+        console.log(" iniciar form.append");
 
-        Axios.create({
-            headers: form.getHeaders()}).post('http://localhost:4004/', form)
-            .then(response => {
-                console.log(response);
-                console.log("Upload realizado com sucesso!")
-            }).catch(error => {
-                if(error.response){
-                    console.log(error.response);
-                    console.log("Falha no upload, tente novamente!");
-                }
-                console.log(error.message);
-                console.log("Falha no upload, tente novamente!");
-            })
+        form.append('file','./audio/audio.mp4','audio.mp4');
+
+        const config = {
+            headers: {
+                "Accept": 'application/json',
+                "Content-Type": "multipart/form-data"
+            }
+        }
+
+        console.log("iniciar envio do arquivo para o servidor")
+        
+        console.log(form)
+        console.log(form.data + ' formData dados')
+
+        Axios.post("http://localhost:4004/", form, config)
+        .then((response) => {
+            console.log(response);
+            console.log(response.data + "- resposta dados");
+            console.log('upload com sucesso!');
+        })
+        .catch(error => error)
+
+        
+      
     }catch (err) {
        console.log("Falha no upload, tente novamente!");
     }

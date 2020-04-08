@@ -12,15 +12,17 @@ let server = app.listen(4004, ()=> {
   //nms.run()
 });
 
-app.post('/', multer({dest: path.resolve('pasta_download')}).array('files'), (req, res) =>{
+
+app.post('/', multer({dest: path.resolve('pasta_downloads')}).array('file'), (req, res) =>{
   let oldF = null;
   try{
     for(let file of req.files){
-      let oldF = path.join(path.resolve('pasta_download'), file.filename);
-      let newF = path.join(path.resolve('pasta_download'), file.originalname);
+      let oldF = path.join(path.resolve('pasta_downloads'), file.filename);
+      let newF = path.join(path.resolve('pasta_downloads'), file.originalname);
 
       fs.renameSync(oldF, newF);
-    }res.send("Arquivo(s) recebido(s) com sucesso");
+    }
+    res.send("Arquivo(s) recebido(s) com sucesso");
 
   }catch (err) {
     try{

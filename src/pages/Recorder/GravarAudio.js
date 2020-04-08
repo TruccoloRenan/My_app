@@ -7,7 +7,10 @@ import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '../app/StyledSi
 import { Link, withRouter } from 'react-router-dom';
 import MicRecorder from 'mic-recorder-to-mp3';
 import './styleAudio.css';
-import Axios from 'axios';
+import {Progress} from 'reactstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const navWidthCollapsed = 64;
 const navWidthExpanded = 280;
@@ -70,34 +73,46 @@ const Main = styled.main`
 `;
 
 class GravarAudio extends React.Component {
-
-    state = {
+    constructor(props) {
+        super(props);
+    this.state = {
         selected: 'home',
         expanded: false,
-        isRecording: false,
         blobURL:'',
+        isRecording: false,
         isBlocked: false,
+        selectedFile: null,
+        loaded:0
+    }
+}
+
+    componentDidMount () {
+        navigator.mediaDevices.getUserMedia({ audio: true},
+            () => {
+                console.log('Permission Granted');
+                this.setState({ isBlocked: false});
+            },
+            () => {
+                console.log('Permission Denied');
+                this.setState({ isBlocked: true })
+            },
+        )
     }
 
     start = () => {
-        if(this.state.isBlocked){
-            console.log('Permission Denied');
+        if (this.state.isBlocked) {
+            console.log('Permisson Deined');
         } else {
-            Mp3Recorder
-            .start
-            .then(() => {
-                this.setState({ isRecording: true});
-            }).catch((e) => console.error(e));
+            Mp3Recorder.start().then(() => {
+                this.setState({ isRecording: true });
+            }).catch((e) => console.log(e));
         }
     };
 
     stop = () => {
-        Mp3Recorder
-        .stop()
-        .getMp3()
-        .then(([buffer, blob]) => {
+        Mp3Recorder.stop().getMp3().then(([buffer, blob]) => {
             blobURL = URL.createObjectURL(blob)
-            this.setState({ blobURL, isRecording: false});
+            this.setState({ blobURL, isRecording: false });
         }).catch((e) => console.log(e));
     };
 
@@ -158,85 +173,83 @@ class GravarAudio extends React.Component {
         );
     }
 
-    enviar = async e => {
-        console.log('entrou - enviar')
-
-     var ffmpeg = require('ffmpeg');
-     try{
-
-        console.log("entrou - salavar audio blob");
-
-        var path = require('path');
-        var process = new ffmpeg(blobURL);
-        process.then(function (audio){
-            audio.fnExtractFrameToMP3(path.resolve(".audios/file-" + Date.now() +".mp3"), function (error, file) {
-                if(!error)
-                    console.log(" ----------------");
-                    console.log("Audio file" + file);
-                    console.log("-----------------");
-            });
-        }, function(err) {
-            console.log("------------");
-            console.log("Error:" + err);
-            console.log("------------");
-        })
-    }catch (e) {
-        console.log(e.code + " erro 1 code");
-        console.log(e.msg + " erro 2 msg");
-    }
-
-    try{
-        const FormData = require('form-data');
-        const fs = require('fs');
-
-        console.log('entrou - iniciar envio');
-
-        let form = new FormData();
-
-        console.log(" iniciar form.append");
-
-        form.append('file','./audio/audio.mp4','audio.mp4');
-
-        const config = {
-            headers: {
-                "Accept": 'application/json',
-                "Content-Type": "multipart/form-data"
-            }
+    checkMimeType=(event)=>{
+        //getting file object
+        let files = event.target.files 
+        //define message container
+        let err = []
+        // list allow mime type
+       const types = ['image/png', 'image/jpeg', 'image/gif', 'multipar/form-data', 'video/mp4', 'video/3gpp']
+        // loop access array
+        for(var x = 0; x<files.length; x++) {
+         // compare file type find doesn't matach
+             if (types.every(type => files[x].type !== type)) {
+             // create error message and assign to container   
+             err[x] = files[x].type+' is not a supported format\n';
+           }
+         };
+         for(var z = 0; z<err.length; z++) {// if message not same old that mean has error 
+             // discard selected file
+            toast.error(err[z])
+            event.target.value = null
         }
-
-        console.log("iniciar envio do arquivo para o servidor")
-        
-        console.log(form)
-        console.log(form.data + ' formData dados')
-
-        Axios.post("http://localhost:4004/", form, config)
-        .then((response) => {
-            console.log(response);
-            console.log(response.data + "- resposta dados");
-            console.log('upload com sucesso!');
+       return true;
+      }
+      maxSelectFile=(event)=>{
+        let files = event.target.files
+            if (files.length > 3) { 
+               const msg = 'Only 3 images can be uploaded at a time'
+               event.target.value = null
+               toast.warn(msg)
+               return false;
+          }
+        return true;
+     }
+     checkFileSize=(event)=>{
+      let files = event.target.files
+      let size = 2000000 
+      let err = []; 
+      for(var x = 0; x<files.length; x++) {
+      if (files[x].size > size) {
+       err[x] = files[x].type+'is too large, please pick a smaller file\n';
+     }
+    };
+    for(var z = 0; z<err.length; z++) {// if message not same old that mean has error 
+      // discard selected file
+     toast.error(err[z])
+     event.target.value = null
+    }
+    return true;
+    }
+    onChangeHandler=event=>{
+      var files = event.target.files
+      if(this.maxSelectFile(event) && this.checkMimeType(event) &&    this.checkFileSize(event)){ 
+      // if return true allow to setState
+         this.setState({
+         selectedFile: files,
+         loaded:0
+      })
+    }
+    }
+      onClickHandler = () => {
+        const data = new FormData() 
+        for(var x = 0; x<this.state.selectedFile.length; x++) {
+          data.append('file', this.state.selectedFile[x])
+        }
+        axios.post("http://localhost:4004/", data, {
+          onUploadProgress: ProgressEvent => {
+            this.setState({
+              loaded: (ProgressEvent.loaded / ProgressEvent.total*100),
+            })
+          },
         })
-        .catch(error => error)
-
-        
-      
-    }catch (err) {
-       console.log("Falha no upload, tente novamente!");
-    }
-
-  }
-  
-    componentDidMount() {
-        navigator.getUserMedia({audio: true},
-        () => {
-            console.log('Permission Granted');
-            this.setState({ isBlocked: false});
-        },
-        () => {
-            console.log('Permission Denied');
-            this.setState({ isBlocked: true })
-        },
-      );
-    }
+          .then(res => { // then print response status
+            toast.success('upload success')
+          })
+          .catch(err => { // then print response status
+            toast.error('upload fail')
+          })
+        }
 
     render() {
         const { expanded, selected } = this.state;
@@ -299,14 +312,34 @@ class GravarAudio extends React.Component {
             </SideNav>
             <Main expanded={expanded}>
                 {this.renderBreadcrumbs()}
-               
-                <div className="App">
-                    <button onClick={this.start} disabled={this.state.isRecording}>Gravar Audio</button>
-                    <button onClick={this.stop} disabled={!this.state.isRecording}>Parar</button>
-                    <audio src={this.state.blobURL} controls="controls" />
-                    <button onClick={this.enviar}>Enviar</button>
+                <div>
+                <button onClick={this.start} disabled={this.state.isRecording}>
+                     Record
+                </button>
+                <button onClick={this.stop} disabled={!this.state.isRecording}>
+                     Stop
+                </button>
+                <audio src={this.state.blobURL} controls="controls" />
                 </div>
 
+                <div class="container">
+	      <div class="row">
+      	  <div class="offset-md-3 col-md-6">
+               <div class="form-group files">
+                <label>Upload Your File </label>
+                <input type="file" class="form-control" multiple onChange={this.onChangeHandler}/>
+              </div>  
+              <div class="form-group">
+              <ToastContainer />
+              <Progress max="100" color="success" value={this.state.loaded} >{Math.round(this.state.loaded,2) }%</Progress>
+        
+              </div> 
+              
+              <button type="button" class="btn btn-success btn-block" onClick={this.onClickHandler}>Upload</button>
+
+	      </div>
+      </div>
+      </div>
             </Main>
         </div>
     

@@ -251,6 +251,8 @@ class GravarAudio extends React.Component {
           })
         }
 
+
+
     render() {
         const { expanded, selected } = this.state;
 
@@ -320,6 +322,7 @@ class GravarAudio extends React.Component {
                      Stop
                 </button>
                 <audio src={this.state.blobURL} controls="controls" />
+                <button onClick={}>Enviar</button>
                 </div>
 
                 <div class="container">

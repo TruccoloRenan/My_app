@@ -315,14 +315,14 @@ class GravarAudio extends React.Component {
             <Main expanded={expanded}>
                 {this.renderBreadcrumbs()}
                 <div>
-                <button onClick={this.start} disabled={this.state.isRecording}>
+                <button onClick={this.start()} disabled={this.state.isRecording}>
                      Record
                 </button>
-                <button onClick={this.stop} disabled={!this.state.isRecording}>
+                <button onClick={this.stop()} disabled={!this.state.isRecording}>
                      Stop
                 </button>
                 <audio src={this.state.blobURL} controls="controls" />
-                <button onClick={}>Enviar</button>
+                <button onClick={this.onClickHandler()}>Enviar</button>
                 </div>
 
                 <div class="container">

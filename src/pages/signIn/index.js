@@ -28,7 +28,7 @@ class SignIn extends Component {
 
                 const response = await api.post("/api/usuarios/login", data);
                 login(response.data.token);
-                this.props.history.push("/App");
+                this.props.history.push("/Dashboard Regiao");
             }catch (err) {
                 this.setState({
                     error: "Houve um problema com o login, verifique suas credenciais!"

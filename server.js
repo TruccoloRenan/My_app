@@ -26,10 +26,10 @@ app.get('/express_backend', (req, res) => {
 
 //const https = require("https");
 
-const options = {
-    key:fs.readFileSync('./ssl/localhost.key'),
-    cert: fs.readFileSync('./ssl/localhost.crt')
-}
+//const options = {
+   // key:fs.readFileSync('./ssl/localhost.key'),
+   // cert: fs.readFileSync('./ssl/localhost.crt')
+//}
 
 //https.createServer(app).listen(443);
 //console.log("https server start on port 443");

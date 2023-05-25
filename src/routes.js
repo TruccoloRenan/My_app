@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/signIn';
-import MainPage from './pages/app';
-import GravarAudio from './pages/Recorder/GravarAudio';
-import GravarVideo from './pages/Recorder/GravarVideo';
+import MainPage from './pages/app/Dashboard Regiao';
+import DashboardDia from './pages/app/DashboardDia';
+import DashboardHora from './pages/app/DashboardHora';
 
 import { isAuthenticated } from "./services/auth";
 
@@ -27,9 +27,9 @@ const Routes = () => (
         <Switch>
             <Route exact path="/" component={SignIn} />
             <Route path="/Signup" component={SignUp} />
-            <Route path="/GravarAudio" component={GravarAudio} />
-            <Route path="/GravarVideo" component={GravarVideo} />
-            <PrivateRoute path="/App" component={MainPage} />
+            <Route path="/Dashboard Hora" component={DashboardHora} />
+            <Route path="/Dashboard Dia" component={DashboardDia} />
+            <PrivateRoute path="/Dashboard Regiao" component={MainPage} />
             <Route path="*" component={() => <h1>Page not Found</h1>} />
         </Switch>
     </BrowserRouter>
